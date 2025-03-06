@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  XCircle,
 } from "lucide-react";
 
 const InventoryManagementPage = () => {
@@ -145,7 +146,9 @@ const InventoryManagementPage = () => {
                 <tr
                   key={product.id}
                   className={`text-sm text-gray-700 ${
-                    product.stockLevel < product.reorderLevel ? "bg-red-50" : ""
+                    product.stockLevel < product.reorderLevel
+                      ? "bg-red-50 hover:bg-red-100"
+                      : "hover:bg-gray-50"
                   }`}
                 >
                   <td className="px-6 py-4">{product.name}</td>

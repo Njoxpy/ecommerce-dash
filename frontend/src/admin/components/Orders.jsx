@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   CheckCircle,
@@ -9,6 +8,8 @@ import {
   Package,
   Clock,
   AlertCircle,
+  Edit,
+  Trash,
 } from "lucide-react";
 
 // Reusable Metric Card Component
@@ -28,6 +29,117 @@ const MetricCard = ({ title, value, icon: Icon, iconColor, bgColor }) => (
   </div>
 );
 
+// Edit Order Modal
+const EditOrderModal = ({ order, onClose, onSave }) => {
+  const [editedOrder, setEditedOrder] = useState(order);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedOrder({ ...editedOrder, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(editedOrder);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Edit Order</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm text-gray-500">Customer</label>
+            <input
+              type="text"
+              name="customer"
+              value={editedOrder.customer}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Status</label>
+            <select
+              name="status"
+              value={editedOrder.status}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Canceled">Canceled</option>
+              <option value="Returned">Returned</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Total Amount</label>
+            <input
+              type="number"
+              name="total"
+              value={editedOrder.total}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-[#1E90FF] text-white px-4 py-2 rounded hover:bg-[#1C86EE]"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Delete Order Modal
+const DeleteOrderModal = ({ order, onClose, onDelete }) => {
+  const handleDelete = () => {
+    onDelete(order.id);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Delete Order</h2>
+        <p className="text-gray-600">
+          Are you sure you want to delete order <strong>{order.id}</strong>?
+        </p>
+        <div className="flex justify-end space-x-4 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const OrdersManagementPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -37,9 +149,11 @@ const OrdersManagementPage = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [deletingOrder, setDeletingOrder] = useState(null);
 
   // Sample order data
-  const orders = [
+  const [orders, setOrders] = useState([
     {
       id: "ORD-7246",
       customer: "Godbless Nyagawa",
@@ -80,49 +194,8 @@ const OrdersManagementPage = () => {
       status: "Returned",
       paymentMethod: "Credit Card",
     },
-    {
-      id: "ORD-7250",
-      customer: "Mwasalemba Isack",
-      date: "2023-10-05",
-      total: 110.4,
-      status: "Returned",
-      paymentMethod: "Credit Card",
-    },
-    ,
-    {
-      id: "ORD-7250",
-      customer: "Mkwawa Jehn",
-      date: "2023-10-05",
-      total: 110.4,
-      status: "Returned",
-      paymentMethod: "Credit Card",
-    },
-    {
-      id: "ORD-7250",
-      customer: "Olivia Rodygo",
-      date: "2023-10-05",
-      total: 110.4,
-      status: "Returned",
-      paymentMethod: "Credit Card",
-    },
-    {
-      id: "ORD-7250",
-      customer: "Olivia Rodygo",
-      date: "2023-10-05",
-      total: 110.4,
-      status: "Returned",
-      paymentMethod: "Credit Card",
-    },
-    {
-      id: "ORD-7250",
-      customer: "Olivia Rodygo",
-      date: "2023-10-05",
-      total: 110.4,
-      status: "Returned",
-      paymentMethod: "Credit Card",
-    },
     // Add more orders as needed
-  ];
+  ]);
 
   // Filter and search logic
   const filteredOrders = orders.filter((order) => {
@@ -155,6 +228,24 @@ const OrdersManagementPage = () => {
     totalOrders: orders.length,
     pendingOrders: orders.filter((order) => order.status === "Pending").length,
     shippedOrders: orders.filter((order) => order.status === "Shipped").length,
+  };
+
+  // Handle Edit Order
+  const handleEditOrder = (order) => {
+    setEditingOrder(order);
+  };
+
+  const handleSaveOrder = (updatedOrder) => {
+    setOrders(
+      orders.map((order) =>
+        order.id === updatedOrder.id ? updatedOrder : order
+      )
+    );
+  };
+
+  // Handle Delete Order
+  const handleDeleteOrder = (orderId) => {
+    setOrders(orders.filter((order) => order.id !== orderId));
   };
 
   return (
@@ -271,39 +362,53 @@ const OrdersManagementPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {currentOrders.map((order) => (
-              <tr key={order.id} className="text-sm text-gray-700">
-                <td className="px-6 py-4">{order.id}</td>
-                <td className="px-6 py-4">{order.customer}</td>
-                <td className="px-6 py-4">{order.date}</td>
-                <td className="px-6 py-4">${order.total.toFixed(2)}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      order.status === "Delivered"
-                        ? "bg-green-100 text-green-700"
-                        : order.status === "Shipped"
-                        ? "bg-blue-100 text-blue-700"
-                        : order.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : order.status === "Canceled"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button className="text-[#1E90FF] hover:text-[#1C86EE] mr-4">
-                    <CheckCircle size={16} />
-                  </button>
-                  <button className="text-[#FF6347] hover:text-[#EE5A42]">
-                    <AlertCircle size={16} />
-                  </button>
+            {currentOrders.length > 0 ? (
+              currentOrders.map((order) => (
+                <tr key={order.id} className="text-sm text-gray-700">
+                  <td className="px-6 py-4">{order.id}</td>
+                  <td className="px-6 py-4">{order.customer}</td>
+                  <td className="px-6 py-4">{order.date}</td>
+                  <td className="px-6 py-4">${order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        order.status === "Delivered"
+                          ? "bg-green-100 text-green-700"
+                          : order.status === "Shipped"
+                          ? "bg-blue-100 text-blue-700"
+                          : order.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : order.status === "Canceled"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleEditOrder(order)}
+                      className="text-[#1E90FF] hover:text-[#1C86EE] mr-4"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => setDeletingOrder(order)}
+                      className="text-[#FF6347] hover:text-[#EE5A42]"
+                    >
+                      <Trash size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  No orders found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -346,6 +451,24 @@ const OrdersManagementPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <EditOrderModal
+          order={editingOrder}
+          onClose={() => setEditingOrder(null)}
+          onSave={handleSaveOrder}
+        />
+      )}
+
+      {/* Delete Order Modal */}
+      {deletingOrder && (
+        <DeleteOrderModal
+          order={deletingOrder}
+          onClose={() => setDeletingOrder(null)}
+          onDelete={handleDeleteOrder}
+        />
+      )}
     </div>
   );
 };

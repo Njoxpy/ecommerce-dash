@@ -9,8 +9,13 @@ import {
   Speaker,
   Monitor,
   Mouse,
+  Bell,
+  User,
+  Edit,
+  LogOut,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 // Reusable Metric Card Component
 const MetricCard = ({
@@ -69,6 +74,9 @@ const ProductItem = ({
 );
 
 const DashboardOverview = () => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
   // Metric Data
   const metrics = [
     {
@@ -181,43 +189,104 @@ const DashboardOverview = () => {
     },
     {
       order: "#ORD-7250",
-      customer: " Oliva Nyangema",
+      customer: "Oliva Nyangema",
       status: "Returned",
       amount: "$110.40",
       statusColor: "bg-gray-100 text-gray-700",
     },
-    {
-      order: "#ORD-7247",
-      customer: "Elvis Maganga",
-      status: "Pending",
-      amount: "$89.75",
-      statusColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      order: "#ORD-7247",
-      customer: "Elvis Maganga",
-      status: "Pending",
-      amount: "$89.75",
-      statusColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      order: "#ORD-7247",
-      customer: "Elvis Maganga",
-      status: "Pending",
-      amount: "$89.75",
-      statusColor: "bg-yellow-100 text-yellow-700",
-    },
+  ];
+
+  // Notifications Data
+  const notifications = [
+    { id: 1, text: "New order received", time: "2 mins ago" },
+    { id: 2, text: "Order #ORD-7246 has been delivered", time: "10 mins ago" },
+    { id: 3, text: "New customer registered", time: "1 hour ago" },
   ];
 
   return (
     <div className="p-6">
-      {/* Welcome Message */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-        <p className="text-gray-600">
-          Welcome back, Godbless Nyagawa! Here's what's happening with your
-          store today.
-        </p>
+      {/* Header with Notifications and Profile */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-600">
+            Welcome back, Godbless Nyagawa! Here's what's happening with your
+            store today.
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <Bell size={20} className="text-gray-600" />
+            </button>
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg">
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold">Notifications</h3>
+                  <div className="mt-2 space-y-2">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className="text-sm text-gray-600"
+                      >
+                        <p>{notification.text}</p>
+                        <p className="text-xs text-gray-400">
+                          {notification.time}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <User size={20} className="text-gray-600" />
+            </button>
+            {showProfileDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
+                <div className="p-2">
+                  <Link
+                    to="/profile"
+                    className="flex items-center p-2 hover:bg-gray-100 rounded"
+                  >
+                    <User size={16} className="mr-2" />
+                    Profile
+                  </Link>
+                  <Link
+                    to="/edit-profile"
+                    className="flex items-center p-2 hover:bg-gray-100 rounded"
+                  >
+                    <Edit size={16} className="mr-2" />
+                    Edit Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      // Handle logout logic here
+                      console.log("User logged out");
+                    }}
+                    className="w-full flex items-center p-2 hover:bg-gray-100 rounded text-red-500"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Metrics Cards */}

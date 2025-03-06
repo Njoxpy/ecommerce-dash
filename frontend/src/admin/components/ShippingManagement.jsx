@@ -39,6 +39,7 @@ const ShippingManagementPage = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -61,11 +62,8 @@ const ShippingManagementPage = () => {
   };
 
   const handleDeleteMethod = (id) => {
-    if (
-      window.confirm("Are you sure you want to delete this shipping method?")
-    ) {
-      setShippingMethods(shippingMethods.filter((method) => method.id !== id));
-    }
+    setShippingMethods(shippingMethods.filter((method) => method.id !== id));
+    setIsDeleteModalOpen(false);
   };
 
   const handleToggleStatus = (id) => {
@@ -143,7 +141,10 @@ const ShippingManagementPage = () => {
                       <Edit size={16} />
                     </button>
                     <button
-                      onClick={() => handleDeleteMethod(method.id)}
+                      onClick={() => {
+                        setSelectedMethod(method);
+                        setIsDeleteModalOpen(true);
+                      }}
                       className="text-[#FF6347] hover:text-[#EE5A42]"
                     >
                       <Trash size={16} />
@@ -210,6 +211,41 @@ const ShippingManagementPage = () => {
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditMethod}
         />
+      )}
+
+      {/* Delete Shipping Method Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-1/3 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Delete Shipping Method</h2>
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete the shipping method{" "}
+              <strong>{selectedMethod?.name}</strong>?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteMethod(selectedMethod.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
