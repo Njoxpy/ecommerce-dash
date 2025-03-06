@@ -35,7 +35,6 @@ function App() {
           <Route path="analytics" element={<AnalyticsDashboard />} />
           <Route path="orders" element={<OrdersManagement />} />
           <Route path="reports" element={<ReportsPage />} />
-
           <Route path="customers" element={<CustomersManagement />} />
           <Route path="settings" element={<Settings />} />
         </Route>
@@ -45,8 +44,3 @@ function App() {
 }
 
 export default App;
-
-/*
-http://localhost:5173/admin/revenue
-// http://localhost:5173/admin/analytics
-//  */

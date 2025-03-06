@@ -16,6 +16,10 @@ import {
   Star,
   PieChart,
   Plus,
+  Package,
+  FileText,
+  User,
+  Edit,
 } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 
@@ -54,7 +58,7 @@ const Dashboard = () => {
     },
     {
       name: "inventory",
-      icon: <TrendingUp size={20} />,
+      icon: <Package size={20} />,
       path: "/admin/inventory",
     },
     {
@@ -86,6 +90,21 @@ const Dashboard = () => {
       name: "customers",
       icon: <Users size={20} />,
       path: "/admin/customers",
+    },
+    {
+      name: "reports",
+      icon: <FileText size={20} />,
+      path: "/admin/reports",
+    },
+    {
+      name: "profile",
+      icon: <User size={20} />,
+      path: "/admin/profile",
+    },
+    {
+      name: "edit profile",
+      icon: <Edit size={20} />,
+      path: "/admin/edit-profile",
     },
     {
       name: "settings",
